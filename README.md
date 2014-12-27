@@ -13,3 +13,8 @@ An irc service for rustcc by rust.
 6. 用户关闭后，需要及时地进行状态的变化和通知；
 7. 前端兼容性不考虑ie，也不要用原生写，还是用jquery吧，其它更高级的mvc框架不考虑了；
 8. 通信协议可以考虑websocket，如果比较难实现，可以使用ajax long poll。
+
+参考项目：
+- https://github.com/cyderize/rust-websocket
+- https://github.com/hyperium/hyper
+- https://github.com/iron/iron

@@ -1,0 +1,17 @@
+[package]
+
+name = "irccc"
+version = "0.0.1"
+authors = ["Daogang Tang <daogangtang@126.com>"]
+
+description = "An irc implemented in Rust."
+
+readme = "README.md"
+
+keywords = ["websocket", "websockets", "rfc6455"]
+
+license = "MIT"
+
+[dependencies.websocket]
+
+git = "https://github.com/cyderize/rust-websocket.git"

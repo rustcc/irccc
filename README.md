@@ -12,7 +12,8 @@ An irc service for rustcc by rust.
 5. 需要显示当前有多少用户在线；
 6. 用户关闭后，需要及时地进行状态的变化和通知；
 7. 前端兼容性不考虑ie，也不要用原生写，还是用jquery吧，其它更高级的mvc框架不考虑了；
-8. 通信协议可以考虑websocket，如果比较难实现，可以使用ajax long poll。
+8. 通信协议可以考虑websocket，如果比较难实现，可以使用ajax long poll；
+9. 开始的时候，不用数据库，不保存聊天记录，登上去自己看（可以考虑存储在前端，存储一段时间内的）；
 
 参考项目：
 - https://github.com/cyderize/rust-websocket

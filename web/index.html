@@ -11,7 +11,7 @@
 		socket.onopen = function(event) { 
 
 			// 发送一个初始化消息
-			socket.send('I am the client and I\'m listening!'); 
+			socket.send('Hello, I am an irccc client.'); 
 
 			// 监听消息
 			socket.onmessage = function(event) { 

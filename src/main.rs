@@ -7,10 +7,17 @@ use std::comm;
 use std::thread::Thread;
 use std::io::{Listener, Acceptor};
 use websocket::{WebSocketServer, WebSocketMessage};
-//use websocket::client::WebSocketClient;
+use websocket::client::WebSocketClient;
 use websocket::header::WebSocketProtocol;
 //use openssl::ssl::{SslContext, SslMethod};
 //use openssl::x509::X509FileType;
+
+struct ConnDirective<S, R, C, E, W, M> {
+    cmd: &'static str,
+    client: WebSocketClient<S, R, C, E, W, M>
+}
+
+
 
 fn main() {
     /*
@@ -51,7 +58,10 @@ fn main() {
             client.send_message(message);
 
             let mut client_ref = client.clone();
-            ctx.send(client_ref);
+            let mut connection_tx = ctx.clone();
+            let conndir_obj = ConnDirective{ cmd: "add", client: client_ref };
+            connection_tx.send(conndir_obj);
+            
             let task_tx = tx.clone();
 
             Thread::spawn(move || {
@@ -64,7 +74,6 @@ fn main() {
                     // and here can do logic process after receiving msg
                     match message {
                         Ok(message) => {
-                            println!("Recv [{}]: {}", id, message);
 
                             match message {
                                 // Handle Ping messages by sending Pong messages
@@ -74,22 +83,27 @@ fn main() {
                                     println!("Closed connection {}", id);
                                     // Close the connection
                                     break;
-                                }
+                                },
                                 // Handle when the client wants to disconnect
                                 WebSocketMessage::Close(_) => {
                                     // Send a close message
                                     let message = WebSocketMessage::Close(None);
                                     let _ = client_captured.send_message(message);
                                     println!("Closed connection {}", id);
+                                    // here, send close directive to connection collector
+                                    let conndir_obj = ConnDirective{ cmd: "remove", client: client_captured };
+                                    
+                                    connection_tx.send(conndir_obj);
+                            
                                     // Close the connection
                                     break;
+                                },
+                                _ => { 
+                                    // main logic
+                                    task_tx.send(message);
+                                
                                 }
-                                _ => { }
                             }
-
-                            task_tx.send("123");
-                            //let message = WebSocketMessage::Text("Response from the server".to_string());
-                            //let _ = client_captured.send_message(message);
                         }
                         Err(err) => {
                             println!("Error [{}]: {}",id, err);
@@ -103,18 +117,29 @@ fn main() {
     }).detach();
 
     loop {
-        let msg = rx.recv();
-        let client = crx.try_recv();
-        match client {
-            Ok(client) => all_clients.push(client),
-            _ => {}
-        }
-        for client in all_clients.iter_mut() {
-            let message = WebSocketMessage::Text("haha, im".to_string());
-            //let mut mclient = client.clone();
-            client.send_message(message);
+        select! (
+            clientdir = crx.recv() => {
+                // TODO: here should contain add, remove
+                // add new client to connection collector
+                match clientdir.cmd {
+                    "add" => {
+                        all_clients.push(clientdir.client);
+                    },
+                    "remove" => {
+                        // remove from dir
+                    }
 
-        }
+                }
+            },
+            msg = rx.recv() => { 
+                // send to all clients
+                for client in all_clients.iter_mut() {
+                    //let message = WebSocketMessage::Text("haha, im".to_string());
+                    client.send_message(msg.clone());
+                }
+            }
+        )
+            
     }
 }
 

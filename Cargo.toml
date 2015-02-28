@@ -12,6 +12,6 @@ keywords = ["websocket", "websockets", "rfc6455"]
 
 license = "MIT"
 
-[dependencies.websocket]
-
-git = "https://github.com/cyderize/rust-websocket.git"
+[dependencies]
+log = "~0.1.4"
+websocket = "0.9.3"
